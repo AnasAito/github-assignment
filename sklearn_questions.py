@@ -22,6 +22,7 @@ for the methods you code and for the class. The docstring will be checked using
 import numpy as np
 from sklearn.base import BaseEstimator
 from sklearn.base import ClassifierMixin
+from sklearn.neighbors import KNeighborsClassifier
 from sklearn.utils.validation import check_X_y
 from sklearn.utils.validation import check_array
 from sklearn.utils.validation import check_is_fitted
@@ -29,27 +30,42 @@ from sklearn.utils.multiclass import check_classification_targets
 
 
 class OneNearestNeighbor(BaseEstimator, ClassifierMixin):
-    "OneNearestNeighbor classifier."
+    """OneNearestNeighbor classifier."""
 
     def __init__(self):  # noqa: D107
         pass
 
-    def fit(self, X, y):
-        """Write docstring.
+    def fit(self, X: np.ndarray, y: np.ndarray):
+        """Fit model on data.
 
-        And describe parameters
+        Parameters
+        ----------
+        X : np.ndarray
+            feature matrix
+        y : np.ndarray
+            array of labels
         """
         X, y = check_X_y(X, y)
         check_classification_targets(y)
         self.classes_ = np.unique(y)
 
-        # XXX fix
+        # init fit model
+        self._model = KNeighborsClassifier(n_neighbors=1)
+        self._model.fit(X, y)
+
         return self
 
-    def predict(self, X):
-        """Write docstring.
+    def predict(self, X: np.ndarray) -> np.ndarray:
+        """Make a prediction.
 
-        And describe parameters
+        Parameters
+        ----------
+        X : np.ndarray
+            matrix of features
+        Returns
+        -------
+        np.ndarray
+            returns an array of predictions
         """
         check_is_fitted(self)
         X = check_array(X)
@@ -58,16 +74,29 @@ class OneNearestNeighbor(BaseEstimator, ClassifierMixin):
             dtype=self.classes_.dtype
         )
 
-        # XXX fix
+        model = self._model
+        # predict
+        y_pred = model.predict(X)
+
         return y_pred
 
-    def score(self, X, y):
-        """Write docstring.
+    def score(self, X: np.array, y: np.array) -> float:
+        """Assess the model.
 
-        And describe parameters
+        Parameters
+        ----------
+        X : np.array
+            matrix of features
+        y : np.array
+            array of true labels
+        Returns
+        -------
+        float
+            returns the score of the model
         """
         X, y = check_X_y(X, y)
-        y_pred = self.predict(X)
 
-        # XXX fix
-        return y_pred.sum()
+        model = self._model
+
+        score = model.score(X, y)
+        return score
